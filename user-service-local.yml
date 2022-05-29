@@ -1,5 +1,5 @@
 spring:
   datasource:
     url: jdbc:h2:tcp://localhost/C:\data\user-service # jdbc:h2:file:C:\data\test
-    username: {cipher}e8f29315cf1b3b75fb90de9f1ffbeee3ca9933fed67e5ff9b158f5bb624b2d26
+    username: '{cipher}e8f29315cf1b3b75fb90de9f1ffbeee3ca9933fed67e5ff9b158f5bb624b2d26'
     password:
