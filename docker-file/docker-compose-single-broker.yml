@@ -1,0 +1,30 @@
+version: '2'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper 
+    container_name: zookeeper 
+    expose:
+      - "2181:2181" 
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.100
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    expose:
+      - "9002:9002"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 172.18.0.101 
+      KAFKA_CREATE_TOPIC: "test:1:1" 
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - D:\data\kafka:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.101
+
+networks:
+  my-network:
+    name: ecommerce-network
