@@ -1,0 +1,12 @@
+version: '2'
+services:
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    expose:
+      - "9411:9411"
+    networks:
+      - my-network
+networks:
+  my-network:
+    name: ecommerce-network
