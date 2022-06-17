@@ -1,0 +1,19 @@
+version: '3'
+services:
+  zipkin:
+    image: rabbitmq:management
+    container_name: rabbitmq 
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - 15672:15672
+      - 5672:5672
+      - 15671:15671
+      - 5671:5671
+      - 4369:4369
+    networks:
+      - my-network
+networks:
+  my-network:
+    name: ecommerce-network
