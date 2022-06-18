@@ -1,7 +1,7 @@
-version: "2"
+version: "3"
 
 services:
-  order-service:
+  user-service:
     image: gramman75/user-service:1.0
     container_name: user-service
     environment:

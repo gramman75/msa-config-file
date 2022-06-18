@@ -1,13 +1,14 @@
-version: '2'
+version: '3'
 services:
-  user-service:
+  gateway-service:
     image: gramman75/gateway-service:1.0
     container_name: gateway-service
     environment:
       spring.rabbitmq.host: rabbitmq
       spring.cloud.config.uri: http://config-service:8888
       eureka.client.service-url.defaultZone: http://discovery-service:8761/eureka
-
+    ports:
+      - 8000:8000
     networks:
       - my-network
 networks:

@@ -1,6 +1,6 @@
-version: '2'
+version: '3'
 services:
-  user-service:
+  catalog-service:
     image: gramman75/catalog-service:1.0
     container_name: catalog-service
     environment:
@@ -8,7 +8,7 @@ services:
       spring.datasource.url: jdbc:mariadb://mariadb:3306/catalogdb
       spring.datasource.username: root
       spring.datasource.password: mariadb
-      spring.jpa.hibernate.ddl-auto: create
+      spring.jpa.hibernate.ddl-auto: create 
       spring.zipkin.base-url: http://zipkin:9411
       spring.cloud.config.uri: http://config-service:8888
       eureka.client.service-url.defaultZone: http://discovery-service:8761/eureka

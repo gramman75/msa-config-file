@@ -1,0 +1,14 @@
+version: '3'
+services:
+  zipkin:
+    image: prom/prometheus 
+    container_name: prometheus 
+    ports:
+      - 9090:9090 
+    networks:
+      - my-network
+    volumes:
+      - D:\git\msa\ecommerce\config-file\docker-file\prometheus.yml:/etc/prometheus/prometheus.yml
+networks:
+  my-network:
+    name: ecommerce-network
