@@ -10,7 +10,8 @@ services:
     ports:
       - 8000:8000
     networks:
-      - my-network
+      my-network:
+        ipv4_address: 172.18.0.99
 networks:
   my-network:
     name: ecommerce-network

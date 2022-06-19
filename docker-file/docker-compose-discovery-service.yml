@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  discovery-service:
+    image: gramman75/discovery-service:1.0
+    container_name: discovery-service
+    environment:
+      spring.cloud.config.uri: http://config-service:8888
+    ports:
+      - '8761:8761'
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    name: ecommerce-network

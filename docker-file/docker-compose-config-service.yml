@@ -6,6 +6,8 @@ services:
     container_name: config-service
     environment:
       spring.rabbitmq.host: rabbitmq
+    ports:
+      - 8888:8888
     networks:
       - my-network
 

@@ -1,6 +1,6 @@
 version: '3'
 services:
-  zipkin:
+  rabbitmq:
     image: rabbitmq:management
     container_name: rabbitmq 
     environment:

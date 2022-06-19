@@ -1,0 +1,187 @@
+version: '3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper 
+    container_name: zookeeper 
+    expose:
+      - "2181:2181" 
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.100
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    expose:
+      - "9002:9002"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 172.18.0.101 
+      KAFKA_CREATE_TOPIC: "test:1:1" 
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - D:\data\kafka:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.101
+
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - D:\data\mariadb:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: mariadb
+    networks:
+      - my-network
+
+  grafana:
+    image: grafana/grafana 
+    container_name: grafana 
+    ports:
+      - "3000:3000"
+    networks:
+      - my-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - my-network
+  
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq 
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - 15672:15672
+      - 5672:5672
+      - 15671:15671
+      - 5671:5671
+      - 4369:4369
+    networks:
+      - my-network
+
+  prometheus:
+    image: prom/prometheus 
+    container_name: prometheus 
+    ports:
+      - 9090:9090 
+    networks:
+      - my-network
+    volumes:
+      - D:\git\msa\ecommerce\config-file\docker-file\prometheus.yml:/etc/prometheus/prometheus.yml
+
+  config-service:
+    image: gramman75/config-service:1.0
+    container_name: config-service
+    environment:
+      spring.rabbitmq.host: rabbitmq
+    ports:
+      - 8888:8888
+    depends_on:
+      - rabbitmq
+    networks:
+      - my-network
+
+  discovery-service:
+    image: gramman75/discovery-service:1.0
+    container_name: discovery-service
+    environment:
+      spring.cloud.config.uri: http://config-service:8888
+    ports:
+      - '8761:8761'
+    depends_on:
+      - config-service
+    networks:
+      - my-network
+
+  gateway-service:
+    image: gramman75/gateway-service:1.0
+    container_name: gateway-service
+    environment:
+      spring.rabbitmq.host: rabbitmq
+      spring.cloud.config.uri: http://config-service:8888
+      eureka.client.service-url.defaultZone: http://discovery-service:8761/eureka
+    ports:
+      - 8000:8000
+    depends_on:
+      - discovery-service
+      - rabbitmq
+      - config-service
+    networks:
+      my-network:
+        ipv4_address: 172.18.0.99
+
+  order-service:
+    image: gramman75/order-service:1.0
+    container_name: order-service
+    environment:
+      spring.rabbitmq.host: rabbitmq
+      spring.datasource.url: jdbc:mariadb://mariadb:3306/orderdb
+      spring.datasource.username: root
+      spring.datasource.password: mariadb
+      spring.zipkin.base-url: http://zipkin:9411
+      spring.cloud.config.uri: http://config-service:8888
+      eureka.client.service-url.defaultZone: http://discovery-service:8761/eureka
+    depends_on:
+      - mariadb
+      - rabbitmq
+      - zipkin
+      - config-service
+      - discovery-service
+    networks:
+      - my-network
+  
+  user-service:
+    image: gramman75/user-service:1.0
+    container_name: user-service
+    environment:
+      spring.rabbitmq.host: rabbitmq
+      spring.datasource.url: jdbc:mariadb://mariadb:3306/userdb
+      spring.datasource.username: root
+      spring.datasource.password: mariadb
+      spring.zipkin.base-url: http://zipkin:9411
+      spring.cloud.config.uri: http://config-service:8888
+      eureka.client.service-url.defaultZone: http://discovery-service:8761/eureka
+    depends_on:
+      - mariadb
+      - rabbitmq
+      - zipkin
+      - config-service
+      - discovery-service
+
+    networks:
+      - my-network
+
+  catalog-service:
+    image: gramman75/catalog-service:1.0
+    container_name: catalog-service
+    environment:
+      spring.rabbitmq.host: rabbitmq
+      spring.datasource.url: jdbc:mariadb://mariadb:3306/catalogdb
+      spring.datasource.username: root
+      spring.datasource.password: mariadb
+      spring.jpa.hibernate.ddl-auto: create 
+      spring.zipkin.base-url: http://zipkin:9411
+      spring.cloud.config.uri: http://config-service:8888
+      eureka.client.service-url.defaultZone: http://discovery-service:8761/eureka
+    depends_on:
+      - mariadb
+      - rabbitmq
+      - zipkin
+      - config-service
+      - discovery-service
+    networks:
+      - my-network
+networks:
+  my-network:
+    name: ecommerce-network
